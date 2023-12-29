@@ -11,7 +11,7 @@ export default function EndGame() {
 
   const [userbid, setBid] = useState();
   const [error, setError] = useState("");
-  const [game, setGame] = useState([{ winner: "",
+  const [game, setGame] = useState([{ winner: [],
   maxnumbid: 0,
   gamelength: 0,
   gametype: 'public',
@@ -158,7 +158,13 @@ export default function EndGame() {
   //Get the winner 
   const getWinner = () => {
     if (typeof game !== 'undefined' && game.length > 0 ) {
-      return game.map(item =><span key={item.winner}>{item.winner}, </span>);
+      if(typeof (game[game.length - 1].winner) !== 'undefined' && game[game.length - 1].winner.length > 0) {
+          const _game = game[game.length - 1].winner;
+          return _game.map((item,index)=><span key={index}>{item}, </span>);
+      } else {
+        return <></>;
+      }
+     
     } else {
       return <></>;
     }
@@ -198,9 +204,9 @@ export default function EndGame() {
             </tr>
           </thead>
           <tbody>
-            {_gameData.map(item=> {
+            {_gameData.map((item,index)=> {
               return (
-                <tr  key={item}>                   
+                <tr  key={index}>                   
                   <td className="border border-slate-300 px-6 py-3">{ item.email.slice(0,7) }</td>
                   <th className="border border-slate-300 px-6 py-3">{item.bid.length === 1? <span></span>: item.bid.slice(Math.max(item.bid.length-6,0), -1).map((usernumber)=>{
                         return (
@@ -267,7 +273,7 @@ export default function EndGame() {
           )}     
       </div>
      
-    </div> : <div className="grid place-items-center p-20">The game's winner is {getWinner()}</div>
+    </div> : <div className="grid place-items-center p-20">The game&apos;winner is {getWinner()}</div>
     );
   }
 

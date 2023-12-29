@@ -119,7 +119,7 @@ export default function SubmitBid() {
     if (typeof game !== 'undefined' && game.length > 0 ) {
       if(typeof (game[game.length - 1].winner) !== 'undefined' && game[game.length - 1].winner.length > 0) {
           const _game = game[game.length - 1].winner;
-          return _game.map((item,index)=><span key={index}>{item}, </span>);
+          return _game.map((item,index)=><span key={JSON.stringify(index)}>{item}, </span>);
       } else {
         return <></>;
       }
@@ -165,11 +165,11 @@ export default function SubmitBid() {
           <tbody>
             {_gameData.map((item,index)=> {
               return (
-                <tr  key={index}>                   
+                <tr  key={JSON.stringify(index)}>                   
                   <td className="border border-slate-300 px-6 py-3">{ item.email.slice(0,7) }</td>
-                  <th className="border border-slate-300 px-6 py-3">{item.bid.length === 1? <span></span>: item.bid.slice(Math.max(item.bid.length-6,0), -1).map((usernumber)=>{
+                  <th className="border border-slate-300 px-6 py-3">{item.bid.length === 1? <span></span>: item.bid.slice(Math.max(item.bid.length-6,0), -1).map((usernumber,index)=>{
                         return (
-                          <span className="line-through lowercase font-light">{usernumber['$numberDecimal'].toLocaleString()}, </span>
+                          <span key={JSON.stringify(index)} className="line-through lowercase font-light">{usernumber['$numberDecimal'].toLocaleString()}, </span>
                           
                         )
                       }) 

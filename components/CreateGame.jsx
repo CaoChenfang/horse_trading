@@ -1,13 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import  NavBar  from "@/components/NavBar";
 import { useSession } from "next-auth/react";
 
 export default function LoginForm() {
+  const [game, setGame] = useState([{ winner: [],
+    maxnumbid: 0,
+    gamelength: 0,
+    gametype: 'public',
+    isactive:'ended'}]);
   const [gameForm, setGameForm] = useState({
     maxnumbid: 0,
     gamelength: 0,
@@ -27,17 +32,71 @@ export default function LoginForm() {
      }
     }) };
     console.log( gameForm.maxnumbid);
-
+    //Collect the game and game data to start with
+    useEffect( () => {
+      async function getGame() {
+        try {
+          const res = await fetch('api/getGame', {
+            method: "POST",
+            headers: {
+              "Content-type": "application/json"
+            },
+          });
+          
+          if (res.ok) {
+            const resData = await res.json();
+            setGame(resData)
+          }    
+          
+        } catch (err) {
+          console.error(err);
+        }     
+      
+      }
+      
+    
+      getGame();
+  
+      //async function getGameData() {
+       // const res = await fetch('api/getGameData');
+       // const resgameData = await res.json();
+       // setGameData(resgameData);
+     // }
+     const interval = setInterval(async () => {
+      await getGame();
+      
+    }, 5 * 1000);
+      
+  
+    return () => clearInterval(interval)
+      //getGameData();
+  
+    }, []);
+  
+  const isactive = () => {
+      if (typeof game !== 'undefined' && game.length > 0 ) {
+        return game[game.length - 1].isactive;
+      } else {
+        return 'ended';
+      }
+    }
   const handleSubmit = async (e) => {
     e.preventDefault();
     const maxNumBid = gameForm.maxnumbid;
     const gameLength = gameForm.gamelength;
     const gameType = gameForm.gametype;
     console.log(maxNumBid);
+    //Persist to get the last game
+
     try {
       
       if (!maxNumBid || !gameLength || !gameType) {
         setError("all fields required");
+        return;
+      }
+
+      if (isactive()==="active") {
+        setError("You need to end the current active game to create a new game");
         return;
       }
       const res = await fetch('api/createGame', {
@@ -51,7 +110,7 @@ export default function LoginForm() {
     if (res.ok) {
         const form = e.target;
         form.reset();
-        router.push("/");
+        //router.push("/");
     } else {
         console.log("Game creation failed")
     }
@@ -68,6 +127,7 @@ export default function LoginForm() {
         <h1 className="text-xl font-bold my-4">Create a new game</h1>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          
           <input
             onChange={handleChange}
             type="number"
@@ -76,7 +136,7 @@ export default function LoginForm() {
             min={1}
             max={100}
             step={1}
-            value={gameForm.maxnumbid}
+            //value={gameForm.maxnumbid}
           />
            <input
             onChange={handleChange}
@@ -86,7 +146,7 @@ export default function LoginForm() {
             min={1}
             max={100}
             step={1}
-            value={gameForm.gamelength}
+            //value={gameForm.gamelength}
           />
         
           <fieldset>

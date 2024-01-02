@@ -4,6 +4,12 @@ const gameSchema = new Schema(
         winner: {
             type: [String],            
         },
+        winningbids: {
+            type: [mongoose.Decimal128],
+        },
+        useraveragebid: {
+            type: mongoose.Decimal128,
+        },
         maxnumbid: {
             type: Number,
             required: true,

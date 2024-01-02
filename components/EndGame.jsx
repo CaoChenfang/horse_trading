@@ -90,6 +90,15 @@ export default function EndGame() {
   //console.log(gameData);
   //console.log(game[0].maxnumbid);
  
+   //Get the type of the game
+   const gametype = () => {
+    if (typeof game !== 'undefined' && game.length > 0 ) {
+      return game[game.length - 1].gametype;
+    } else {
+      return "";
+    }
+  }
+
   //Get the status of the game
   const isactive = () => {
     if (typeof game !== 'undefined' && game.length > 0 ) {
@@ -154,13 +163,25 @@ export default function EndGame() {
 
   }
   const {userwinner, winningbid, averagebid, bidlist} = calculateWinner(gameData);
-  console.log(userwinner);
+ 
+    //Get the average winning bid 
+    const gameAverageBid = () => {
+      if (typeof game !== 'undefined' && game.length > 0 ) { 
+      
+        if (typeof ( game[game.length - 1].useraveragebid)!== 'undefined') {
+          return game[game.length - 1].useraveragebid['$numberDecimal'].toString();     
+        }
+      
+              
+       
+      }   return ""; }
   //Get the winner 
+  console.log("The average bid",gameAverageBid());
   const getWinner = () => {
     if (typeof game !== 'undefined' && game.length > 0 ) {
       if(typeof (game[game.length - 1].winner) !== 'undefined' && game[game.length - 1].winner.length > 0) {
           const _game = game[game.length - 1].winner;
-          return _game.map((item,index)=><span key={JSON.stringify(index)}>{item}, </span>);
+          return _game.map((item,index)=><span key={JSON.stringify(index)}>{item} </span>);
       } else {
         return <></>;
       }
@@ -169,6 +190,15 @@ export default function EndGame() {
       return <></>;
     }
   }
+  //Get the number of game
+  const getNumbOfGame = () => {
+    if (typeof game !== 'undefined' && game.length > 0 ) {
+      return game.length;
+    } else {
+      return 0;
+    }
+  }
+  const numberofgame = getNumbOfGame();
   //Get the game data of the current player
   const userGameData = () => {
     if (typeof gameData !== 'undefined' && gameData.length > 0 ) {
@@ -239,7 +269,7 @@ export default function EndGame() {
         headers: {
           "Content-type": "application/json"
         },
-        body: JSON.stringify({userwinner})
+        body: JSON.stringify({userwinner, winningbid, averagebid, numberofgame})
     });   
     if (res.ok) {
        
@@ -256,7 +286,8 @@ export default function EndGame() {
    
   };
   //Render the form and public info
-
+  
+  console.log(gametype());
   const renderForm = () => {
     const userNumBid = (typeof userGameData().bid === 'undefined')? 0: userGameData().bid.length;
     return (
@@ -273,7 +304,8 @@ export default function EndGame() {
           )}     
       </div>
      
-    </div> : <div className="grid place-items-center p-20">The game&apos;winner is {getWinner()}</div>
+    </div> : <div className="grid place-items-center p-20">The game&apos;winner is {getWinner()}  <br />
+    The average bid is {gameAverageBid()}.</div>
     );
   }
 
@@ -282,6 +314,9 @@ export default function EndGame() {
          <NavBar />
          <div className="grid place-items-center p-10">
           <h1 className="font-semibold text-xl"> Welcome {useremail} to game management portal !</h1>
+          <div>
+        {isactive()==="active" ? (gametype()==="public"? "The public game is active" : "The private game is active"):""}
+        </div>
           <HistogramChart props={bidlist}/>    
           {renderForm()}
           {renderPublicInfo(gameData)}     

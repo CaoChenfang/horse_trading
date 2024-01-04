@@ -258,7 +258,7 @@ export default function SubmitBid() {
   const renderInstruction = () => {
     if (gametype()==="private") {
       return (<div class="mx-24 bg-green-200">
-        <h3 class="mb-3 text-xs font-extrabold leading-none tracking-tight text-gray-900 md:text-xl lg:text-6xl dark:text-white">Instruction</h3>
+        <h3 class="mb-3 text-xs font-extrabold leading-none tracking-tight text-gray-900 md:text-xl lg:text-6xl dark:text-white">Instructions</h3>
         <p class="p-4 text-left">
         Currently, the private game is active. The students can choose to submit any number between 0 and 100 . <br />
         The maximum number of submission is {maxnumbid()}. Only 1 submission is allowed in 10 seconds. <br />
@@ -270,7 +270,7 @@ export default function SubmitBid() {
     }
     if (gametype()==="public") {
       return (<div class="mx-24 bg-green-200">
-        <h3 class="mb-3 text-xs font-extrabold leading-none tracking-tight text-gray-900 md:text-xl lg:text-6xl dark:text-white">Instruction</h3>
+        <h3 class="mb-3 text-xs font-extrabold leading-none tracking-tight text-gray-900 md:text-xl lg:text-6xl dark:text-white">Instructions</h3>
         <p class="p-4 text-left">
         Currently, the public game is active. The students can choose to submit any number between 0 and 100 . <br />
         The students can see other students numbers and change their numbers

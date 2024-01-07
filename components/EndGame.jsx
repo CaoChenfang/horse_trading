@@ -190,6 +190,22 @@ export default function EndGame() {
       return <></>;
     }
   }
+  //Get the winning bids
+  const getWinningBids = () => {
+    if (typeof game !== 'undefined' && game.length > 0 ) {
+      if(typeof (game[game.length - 1].winningbids) !== 'undefined' && game[game.length - 1].winningbids.length > 0) {
+          const _game = game[game.length - 1].winningbids;        
+         
+          return _game.map((item,index)=><span key={JSON.stringify(index)}>{item['$numberDecimal']} </span>);;
+      } else {
+        return <></>;
+      }
+     
+    } else {
+      return <></>;
+    }
+  }
+  
   //Get the number of game
   const getNumbOfGame = () => {
     if (typeof game !== 'undefined' && game.length > 0 ) {
@@ -269,7 +285,7 @@ export default function EndGame() {
         headers: {
           "Content-type": "application/json"
         },
-        body: JSON.stringify({userwinner, winningbid, averagebid, numberofgame})
+        body: JSON.stringify({userwinner, winningbid, averagebid})
     });   
     if (res.ok) {
        
@@ -305,6 +321,8 @@ export default function EndGame() {
       </div>
      
     </div> : <div className="grid place-items-center p-20">The game&apos;winner is {getWinner()}  <br />
+    The winning number is {getWinningBids()}
+    <br />
     The average bid is {gameAverageBid()}.</div>
     );
   }

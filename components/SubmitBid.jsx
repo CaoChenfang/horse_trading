@@ -138,6 +138,22 @@ export default function SubmitBid() {
       return <></>;
     }
   }
+  //Get the winning bids
+  const getWinningBids = () => {
+    if (typeof game !== 'undefined' && game.length > 0 ) {
+      if(typeof (game[game.length - 1].winningbids) !== 'undefined' && game[game.length - 1].winningbids.length > 0) {
+          const _game = game[game.length - 1].winningbids;        
+         
+          return _game.map((item,index)=><span key={JSON.stringify(index)}>{item['$numberDecimal']} </span>);;
+      } else {
+        return <></>;
+      }
+     
+    } else {
+      return <></>;
+    }
+  }
+ 
   //Get the game data of the current player
   const userGameData = () => {
     if (typeof gameData !== 'undefined' && gameData.length > 0 ) {
@@ -390,6 +406,8 @@ export default function SubmitBid() {
     </div>
   </div>
 </nav> <div className="grid place-items-center p-20">The game&apos;winner is {getWinner()}. <br/> 
+<br />
+The winning number is {getWinningBids()}. <br />
  The average bid is { gameAverageBid()}</div></div>
     );
   }

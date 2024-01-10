@@ -452,12 +452,13 @@ const handleCancelContract = async() => {
     
     return (<div className="mx-24 bg-green-200">
       <h3 className="mb-3 text-xs font-extrabold leading-none tracking-tight text-gray-900 md:text-xl lg:text-6xl dark:text-white">Instructions</h3>
-      <p className="p-4 text-left">
-      You need to register as an active user. Upon registering, the system will randomly assign <br />
-      you a valuation and your role. There are 2 roles: buyer and seller. A seller can submit a sell<br /> 
+      <p className="p-4 text-left">      
+      There are 2 roles: buyer and seller. A seller can submit a sell<br /> 
       order or accept an active buy order while a buyer can submit a buy order or accept an active      
       <br /> 
-      sell order.             
+      sell order. The students can only accept/submit an order if he/she have no outstanding order.
+      <br /> The surplus for buyers is his valuation - his buy price. The surplus for sellers is 
+      <br /> his sell price - his valuation. The student with the highest surplus is the winner.           
       </p>
     </div>);    
 }

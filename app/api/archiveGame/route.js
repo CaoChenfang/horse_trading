@@ -5,11 +5,13 @@ import { NextResponse } from "next/server";
 import mongoose, {Schema, models} from "mongoose";
 export async function POST(req) {
     try {
-        const { userwinner, winnerprice, usersurplus } = await req.json();
-        console.log("the winner", userwinner);
+        const {  numberofgame } = await req.json();
         await connectMongoDB();
         //const user = await User.findOne({email}).select("_id");
-        await HorseGame.updateMany({isactive: "active"}, {isactive: "ended", winner: userwinner, agreedprice: winnerprice, surplus: usersurplus,}); 
+        
+        //Archive Gamedata
+        var db = mongoose.connection.db;
+        await db.collection('horsegamedatas').rename(`archivedhorsegamedatas${numberofgame}`)
         return NextResponse.json(
             {message: "Game ended."}, {status: 201}
         );

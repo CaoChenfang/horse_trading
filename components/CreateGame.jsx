@@ -8,70 +8,80 @@ import  NavBar  from "@/components/NavBar";
 import { useSession } from "next-auth/react";
 
 export default function LoginForm() {
-  const [game, setGame] = useState([{ winner: [],
-    maxnumbid: 0,
-    gamelength: 0,
-    gametype: 'public',
-    isactive:'ended'}]);
-  const [gameForm, setGameForm] = useState({
-    maxnumbid: 0,
-    gamelength: 0,
-    gametype:"",
-  });
-  
+  const [game, setGame] = useState();
+  const [gameData, setGameData] = useState();
+  const [max, setMax] = useState();
+  const [min, setMin] = useState(); 
+  const [buyerMultiplier, setBuyerMultiplier] = useState(); 
   const [error, setError] = useState("");
   const router = useRouter();
   const { data: session } = useSession();
   const role = session?.user?.role; 
 
-  const handleChange = (event) => {
-    const {name, value, type, checked} = event.target;
-    setGameForm( preGameForm => {
-     return {
-         ...preGameForm, [name]: type === "checkbox" ? checked : value
-     }
-    }) };
-    console.log( gameForm.maxnumbid);
-    //Collect the game and game data to start with
-    useEffect( () => {
-      async function getGame() {
-        try {
-          const res = await fetch('api/getGame', {
-            method: "POST",
-            headers: {
-              "Content-type": "application/json"
-            },
-          });
-          
-          if (res.ok) {
-            const resData = await res.json();
-            setGame(resData)
-          }    
-          
-        } catch (err) {
-          console.error(err);
-        }     
+//Collect the game and game data to start with
+useEffect( () => {
+  async function getGameData() {
+    try {
+      const res = await fetch('api/getHorseGameData', {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json"
+        },
+      });
       
-      }
-      
-    
-      getGame();
+      if (res.ok) {
+        const resData = await res.json();
+        if (typeof resData !== 'undefined' && resData.length > 0 ) {
+          setGameData(resData);
+        }
+        
+      }    
+    } catch (err) {
+      console.error(err);
+    }
   
-      //async function getGameData() {
-       // const res = await fetch('api/getGameData');
-       // const resgameData = await res.json();
-       // setGameData(resgameData);
-     // }
-     const interval = setInterval(async () => {
-      await getGame();
+  }
+
+  async function getGame() {
+    try {
+      const res = await fetch('api/getHorseGame', {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json"
+        },
+      });
       
-    }, 5 * 1000);
-      
+      if (res.ok) {
+        const resData = await res.json();
+        if (typeof resData !== 'undefined' && resData.length > 0 ) {
+          setGame(resData);
+        }
+        
+      }    
+    } catch (err) {
+      console.error(err);
+    }
   
-    return () => clearInterval(interval)
-      //getGameData();
+  }
+  getGameData();  
+  getGame();
+
+  //async function getGameData() {
+   // const res = await fetch('api/getGameData');
+   // const resgameData = await res.json();
+   // setGameData(resgameData);
+ // }
+ const interval = setInterval(async () => {
+ 
+  await getGameData();
+  await getGame();
+}, 5 * 1000);
   
-    }, []);
+
+return () => clearInterval(interval)
+  //getGameData();
+
+}, []);
   
   const isactive = () => {
       if (typeof game !== 'undefined' && game.length > 0 ) {
@@ -82,16 +92,18 @@ export default function LoginForm() {
     }
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const maxNumBid = gameForm.maxnumbid;
-    const gameLength = gameForm.gamelength;
-    const gameType = gameForm.gametype;
-    console.log(maxNumBid);
+    
     //Persist to get the last game
 
     try {
       
-      if (!maxNumBid || !gameLength || !gameType) {
+      if (!max || !min) {
         setError("all fields required");
+        return;
+      }
+
+      if (min>max) {
+        setError("The min value is greater than the max value");
         return;
       }
 
@@ -99,17 +111,35 @@ export default function LoginForm() {
         setError("You need to end the current active game to create a new game");
         return;
       }
+      if (isactive()==="ended" && gameData.length > 0) {
+        var numberofgame = gameData.length;
+        try {
+          const resGame = await fetch('api/archiveGame', {
+            method: "POST",
+            headers: {
+              "Content-type": "application/json"
+            },
+            body: JSON.stringify({ numberofgame })
+        });
+          
+        } catch (error) {
+          console.log("Archived failed", error);
+        } 
+      }
+      const maxVal = max;
+      const minVal = min;
       const res = await fetch('api/createGame', {
         method: "POST",
         headers: {
           "Content-type": "application/json"
         },
-        body: JSON.stringify({maxNumBid, gameLength, gameType})
+        body: JSON.stringify({maxVal, minVal, buyerMultiplier})
     });
    
     if (res.ok) {
         const form = e.target;
         form.reset();
+        setError("")
         //router.push("/");
     } else {
         console.log("Game creation failed")
@@ -129,48 +159,32 @@ export default function LoginForm() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           
           <input
-            onChange={handleChange}
+            onChange={(e) => setMax(e.target.value)}
             type="number"
-            placeholder="Max number of bids"
-            name="maxnumbid"
-            min={1}
-            max={100}
-            step={1}
+            placeholder="The maximum value of the valuation"
+            name="max"
+            min="0"            
+            step="any"
             //value={gameForm.maxnumbid}
           />
            <input
-            onChange={handleChange}
+            onChange={(e)=>setMin(e.target.value)}
             type="number"
-            placeholder="The game length in minutes"
-            name="gamelength"
-            min={1}
-            max={100}
-            step={1}
+            placeholder="The min value of the valuation"
+            name="min"
+            min="0"            
+            step="any"
             //value={gameForm.gamelength}
           />
-        
-          <fieldset>
-              <legend>The game type</legend>
-              <input
-              type="radio"
-              id="private"
-              name="gametype"
-              onChange={handleChange}
-              value="private"  
-              checked={gameForm.gametype==="private"}           
-              />
-              <label htmlFor="private"> Private</label>
-              <br />
-              <input
-              type="radio"
-              id="public"
-              name="gametype"
-              value="public"
-              onChange={handleChange}
-              checked={gameForm.gametype==="public"}                 
-              />
-              <label htmlFor="public"> Public</label>
-            </fieldset>
+           <input
+            onChange={(e) => setBuyerMultiplier(e.target.value)}
+            type="number"
+            placeholder="The buyer's multiplier"
+            name="multiplier"
+            min="0"            
+            step="any"
+            //value={gameForm.maxnumbid}
+          />        
           <button className="bg-green-600 text-white font-bold cursor-pointer px-6 py-2">
             Create a new game
           </button>

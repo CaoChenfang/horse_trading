@@ -13,15 +13,15 @@ import {
 
 export default function HistogramChart(props) {
     function histogram(data, size) {
-        let min = 0;
-        let max = 99;
+        let min = props.min;
+        let max = props.max;
     
         for (const item of data) {
             if (item < min) min = item;
             else if (item > max) max = item;
         }
     
-        const bins = Math.ceil((max - min + 1) / size);
+        const bins = Math.ceil((max - min+1) / size);
     
         const histogram = new Array(bins).fill(0);
     

@@ -456,7 +456,7 @@ const handleCancelContract = async() => {
       There are 2 roles: buyer and seller. A seller can submit a sell order or accept an active buy<br /> 
        order while a buyer can submit a buy order or accept an active sell order.       
       <br /> 
-      The students can only accept/submit an order if he/she have no outstanding order.
+      The students can only accept/submit an order if he/she has no outstanding order.
       <br /> The surplus for buyers is his valuation - his buy price. The surplus for sellers is 
       <br /> his sell price - his valuation. The student with the highest surplus is the winner.           
       </p>

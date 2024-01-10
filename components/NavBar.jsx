@@ -8,7 +8,7 @@ export default function NavBar() {
 <nav className="bg-white border-gray-200 dark:bg-gray-900 border-t dark:border-gray-600 border-b-2" >
   <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-10">
     <a href="./" className="flex items-center space-x-3 rtl:space-x-reverse">
-        <img src="/beauty-contest.svg" width="100" height="600" className="h-8" alt="Econ Logo" />
+        <img src="/horse-trading.svg" width="100" height="600" className="h-8" alt="Econ Logo" />
         <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white"></span>
     </a>
     <button data-collapse-toggle="navbar-default" type="button" className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-default" aria-expanded="false">

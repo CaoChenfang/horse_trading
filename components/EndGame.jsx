@@ -180,8 +180,22 @@ export default function EndGame() {
       return <></>;
     }
   }
-  //Get the agreed price
-  const getAgreedPrice = () => {
+   //Get the winner and and price 
+   const getAgreedPrice = () => {
+    if (typeof game !== 'undefined' && game.length > 0 ) {
+      if(typeof (game[game.length - 1].agreedprice) !== 'undefined' && game[game.length - 1].agreedprice.length > 0) {
+          const _game = game[game.length - 1].agreedprice;
+          return _game.map((item,index)=><span key={JSON.stringify(index)}>{item['$numberDecimal']} </span>);
+      } else {
+        return <></>;
+      }
+     
+    } else {
+      return <></>;
+    }
+  }
+  //Get the number of game
+  const getNumbOfGame = () => {
     if (typeof game !== 'undefined' && game.length > 0 ) {
       if(typeof (game[game.length - 1].agreedprice) !== 'undefined' && game[game.length - 1].agreedprice.length > 0) {
           const _game = game[game.length - 1].agreedprice;    
@@ -202,7 +216,7 @@ export default function EndGame() {
         headers: {
           "Content-type": "application/json"
         },
-        body: JSON.stringify({userwinner, winnerprice, usersurplus})
+        body: JSON.stringify({userwinner, winningbid, averagebid, numberofgame})
     });   
     if (res.ok) {
        
@@ -236,9 +250,8 @@ export default function EndGame() {
           )}     
       </div>
      
-    </div> : <div className="grid place-items-center p-20 text-xl">The game&apos;winner is  {getWinner()} <br />
-    The agreed price is {getAgreedPrice()}
-    </div>
+    </div> : <div className="grid place-items-center p-20">The game&apos;winner is {getWinner()}  <br />
+    The agreed price bid is {getAgreedPrice()}.</div>
     );
   }
   return (

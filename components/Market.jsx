@@ -110,6 +110,36 @@ export default function Market() {
   var userData = typeof(gameData) !== "undefined"? gameData.filter(x => x.email == userEmail) : [];
   console.log(userData);
 
+
+   //Get the winner and and price 
+   const getWinner = () => {
+    if (typeof game !== 'undefined' && game.length > 0 ) {
+      if(typeof (game[game.length - 1].winner) !== 'undefined' && game[game.length - 1].winner.length > 0) {
+          const _game = game[game.length - 1].winner;
+          return _game.map((item,index)=><span key={JSON.stringify(index)}>{item} </span>);
+      } else {
+        return <></>;
+      }
+     
+    } else {
+      return <></>;
+    }
+  }
+   //Get the winner and and price 
+   const getAgreedPrice = () => {
+    if (typeof game !== 'undefined' && game.length > 0 ) {
+      if(typeof (game[game.length - 1].agreedprice) !== 'undefined' && game[game.length - 1].agreedprice.length > 0) {
+          const _game = game[game.length - 1].agreedprice;
+          return _game.map((item,index)=><span key={JSON.stringify(index)}>{item['$numberDecimal']} </span>);
+      } else {
+        return <></>;
+      }
+     
+    } else {
+      return <></>;
+    }
+  }
+
   //handle market accept
   const handleMarketClick = async (_partyEmail) => {
     async function getGameData() {
@@ -518,7 +548,11 @@ const handleCancelContract = async() => {
 
 </div>
 </div>): 
-<div className="text-xl"> There is no active game to play. The winner of the latest game is </div>}
+<div className="text-xl"> There is no active game to play 
+<div className="grid place-items-center p-20">The game&apos;winner is {getWinner()}  <br />
+    The agreed price bid is {getAgreedPrice()}.</div>
+</div>
+}
  
     </div>
   </div> );

@@ -6,6 +6,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import  NavBar  from "@/components/NavBar";
 import { useSession } from "next-auth/react";
+//import GameData from "@/models/gameData";
 
 export default function LoginForm() {
   const [game, setGame] = useState();
@@ -90,6 +91,17 @@ return () => clearInterval(interval)
         return 'ended';
       }
     }
+
+   //Get the number of game
+   const getNumbOfGame = () => {
+    if (typeof game !== 'undefined' && game.length > 0 ) {
+      return game.length;
+    } else {
+      return 0;
+    }
+  }
+  const numberofgame = getNumbOfGame();
+  //Handle the submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     

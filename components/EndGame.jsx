@@ -134,8 +134,17 @@ export default function EndGame() {
 ;
     return uniqueContract;
   }
-  console.log(getUniqueContract(gameData));
+  
   const agreedPriceList = getUniqueContract(gameData).map(item => item.agreedprice);
+    
+  const average = (arr)=> { 
+    if (typeof(arr) !=="undefined") {
+      if (arr.length > 0) {
+        return arr.reduce( ( p, c ) => p + c, 0 ) / arr.length;
+      }
+      }
+    };
+
   //Get winners
   const calculateWinner = (_gameData) => {
     var simplifiedGameData = typeof(_gameData) !== "undefined"? _gameData.filter(x => x.status == "contracted") : [];
@@ -216,7 +225,7 @@ export default function EndGame() {
         headers: {
           "Content-type": "application/json"
         },
-        body: JSON.stringify({userwinner, winningbid, averagebid, numberofgame})
+        body: JSON.stringify({userwinner, winnerprice, usersurplus })
     });   
     if (res.ok) {
        
@@ -271,6 +280,7 @@ export default function EndGame() {
             <p className="py-6 text-xl"> Traded price histogram chart </p>
           <HistogramChart props = {agreedPriceList} max = {maxVal*multiplier + 1} min = {minVal}/>
           <div className="py-6 text-xl">
+            <div>The average executed price {average(agreedPriceList.map(item => parseFloat(item)))}</div>
         {isactive()==="active" ? "The game is active":"There is no active game to play"}
         </div>
           {renderForm()}

@@ -76,7 +76,7 @@ export default function ActiveRegister() {
    
     await getGameData();
     await getGame();
-  }, 1 * 1000);
+  }, 5 * 1000);
     
 
   return () => clearInterval(interval)

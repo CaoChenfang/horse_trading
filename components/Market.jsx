@@ -77,7 +77,7 @@ export default function Market() {
        
         await getGameData();
         await getGame();
-      }, 0.1 * 1000);
+      }, 3 * 1000);
         
     
       return () => clearInterval(interval)

@@ -123,7 +123,7 @@ return () => clearInterval(interval)
         setError("You need to end the current active game to create a new game");
         return;
       }
-      if (isactive()==="ended" && gameData.length > 0) {
+      if (isactive()==="ended" && gameData !== undefined) {
         var numberofgame = gameData.length;
         try {
           const resGame = await fetch('api/archiveGame', {

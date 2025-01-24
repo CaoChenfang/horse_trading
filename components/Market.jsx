@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import EndGame from "./EndGame";
 import { signOut } from "next-auth/react";
 import NavBarUser from "./NavBarUser";
+import HistogramChart from "./HistogramChart";
 
 export default function Market() {
 
@@ -267,6 +268,24 @@ const handleCancelContract = async() => {
 
 }
 
+//Get the agrred price list
+//Get unique contracted agreements
+const getUniqueContract = (_gameData) => {
+  var simplifiedGameData = typeof(_gameData) !== "undefined"? _gameData.filter(x => x.status == "contracted") : [];
+  var arr = simplifiedGameData.map(item => {return {
+    partyA: item.email >= item.tradingparty ? item.email: item.tradingparty,
+    partyB: item.email <= item.tradingparty ? item.email: item.tradingparty,
+    agreedprice: item.agreedprice["$numberDecimal"],
+  }});
+  var uniqueContract =  arr.filter((arr, index, self) =>
+  index === self.findIndex((t) => (t.partyA === arr.partyA && t.partyB === arr.partyB)))
+;
+  return uniqueContract;
+}
+const agreedPriceList = getUniqueContract(gameData).map(item => item.agreedprice);
+//get max. min
+const maxVal = typeof(game) !=="undefined" ? (game.length > 0? game[game.length - 1].max["$numberDecimal"]:0): 0;
+const minVal = typeof(game) !=="undefined" ? (game.length > 0? game[game.length - 1].min["$numberDecimal"]:0): 0;
 
 //Rendering the user data
   const userOrder = () => {
@@ -548,10 +567,14 @@ const handleCancelContract = async() => {
     </div>
 
 </div>
+<p className="py-6 text-xl"> Traded price histogram chart </p>
+<HistogramChart props = {agreedPriceList} max = {maxVal*multiplier + 1} min = {minVal}/>
 </div>): 
 <div className="text-xl"> There is no active game to play 
 <div className="grid place-items-center p-20">The game&apos;winner is {getWinner()}  <br />
     The agreed price bid is {getAgreedPrice()}.</div>
+    <p className="py-12 text-xl"> Traded price histogram chart </p>
+<HistogramChart props = {agreedPriceList} max = {maxVal*multiplier + 1} min = {minVal}/>
 </div>
 }
  

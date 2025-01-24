@@ -567,7 +567,7 @@ const minVal = typeof(game) !=="undefined" ? (game.length > 0? game[game.length 
     </div>
 
 </div>
-<p className="py-6 text-xl"> Traded price histogram chart </p>
+<p className="py-12 text-xl"> Traded price histogram chart </p>
 <HistogramChart props = {agreedPriceList} max = {maxVal*multiplier + 1} min = {minVal}/>
 </div>): 
 <div className="text-xl"> There is no active game to play 

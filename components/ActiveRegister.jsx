@@ -15,6 +15,7 @@ export default function ActiveRegister() {
   const router = useRouter();
   const [game, setGame] = useState();
   const [gameData, setGameData] = useState();
+  const [submissionTime, setSubmissionTime] = useState(Date.now());
   const role = session?.user?.role
   const userEmail = session?.user?.email;
   //The first part is to connect to the server to find out the active game. 
@@ -76,7 +77,7 @@ export default function ActiveRegister() {
    
     await getGameData();
     await getGame();
-  }, 5 * 1000);
+  }, 5 * 100);
     
 
   return () => clearInterval(interval)
@@ -125,6 +126,10 @@ export default function ActiveRegister() {
   
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if( (Date.now()-submissionTime)/1000 < 2) {
+      setSubmissionTime(Date.now());  
+      setError("Only allow to submit one number in 2 seconds. Try again in 2 seconds");
+      return;}
     //Randomly create a value
     const userType = Math.random() < 0.5 ? "buyer": "seller";
     if (userType === "buyer") {        
@@ -134,13 +139,44 @@ export default function ActiveRegister() {
     }
     
    try {
-        const res = await fetch('api/activeRegister', {
+    async function getGameData() {
+      try {
+        const res = await fetch('api/getHorseGameData', {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json"
+          },
+        });
+        
+        if (res.ok) {
+          const resData = await res.json();
+          if (typeof resData !== 'undefined' && resData.length > 0 ) {
+            setGameData(resData);
+          }
+          
+        }    
+      } catch (err) {
+        console.error(err);
+      }
+    
+    }
+  
+    //Need to change to direct call to get data
+    getGameData(); 
+    var userData = typeof(gameData) !== "undefined"? gameData.filter(x => x.email == userEmail) : [];
+    console.log(userData)
+    if (userData.length > 0) {
+      setError("already registered");
+      return;
+    }
+    const res = await fetch('api/activeRegister', {
           method: "POST",
           headers: {
             "Content-type": "application/json"
           },
           body: JSON.stringify({userEmail, userType, assignedValue})
       });
+    setSubmissionTime(Date.now());   
      
       if (res.ok) {
           const form = e.target;

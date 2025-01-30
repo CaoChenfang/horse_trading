@@ -13,6 +13,7 @@ export default function Market() {
   const [price, setPrice] = useState();
   const [error, setError] = useState("");
   const [acceptError, setAcceptError] = useState("");
+  const [submissionTime, setSubmissionTime] = useState(Date.now());
   const [gameData, setGameData] = useState();
   const [game, setGame] = useState();
   const { data: session } = useSession();
@@ -78,7 +79,7 @@ export default function Market() {
        
         await getGameData();
         await getGame();
-      }, 3 * 1000);
+      }, 5 * 100);
         
     
       return () => clearInterval(interval)
@@ -101,12 +102,17 @@ export default function Market() {
 
   //Get the market data
 
-  const buyOrders = typeof(gameData) !== "undefined"? gameData.filter(x => x.status == "offered"&& x.type == "buyer") : "";
-  const sellOrders = typeof(gameData) !== "undefined"? gameData.filter(x => x.status == "offered"&& x.type == "seller") : "";
+  const buyOrders = typeof(gameData) !== "undefined"? gameData.filter(x => x.status == "offered"&& x.type == "buyer") : [];
+  const sellOrders = typeof(gameData) !== "undefined"? gameData.filter(x => x.status == "offered"&& x.type == "seller") : [];
   const max = typeof(game) !=="undefined" ? (game.length > 0? game[game.length - 1].max["$numberDecimal"]:0): 0;
   const min = typeof(game) !=="undefined" ? (game.length > 0? game[game.length - 1].min["$numberDecimal"]:0): 0;
   const multiplier = typeof(game) !=="undefined" ? (game.length > 0? game[game.length - 1].multiplier["$numberDecimal"]:0): 0;
-  //console.log(buyOrders);
+  //console.log(buyOrders[1]);
+  const topBuyOrders = buyOrders.sort((a, b) => (b.agreedprice["$numberDecimal"] - a.agreedprice["$numberDecimal"]));
+  const topSellOrders = sellOrders.sort((a, b) => (a.agreedprice["$numberDecimal"] - b.agreedprice["$numberDecimal"]));
+  const topBookBuyOrders = topBuyOrders.length > 5 ? topBuyOrders.slice(0,5) : topBuyOrders;
+  const topBookSellOrders = topSellOrders.length > 5 ? topSellOrders.slice(0,5) : topSellOrders;
+  console.log(topBookBuyOrders)
   //Get the userdata
   var userData = typeof(gameData) !== "undefined"? gameData.filter(x => x.email == userEmail) : [];
   console.log(userData);
@@ -143,6 +149,10 @@ export default function Market() {
 
   //handle market accept
   const handleMarketClick = async (_partyEmail) => {
+    if( (Date.now()-submissionTime)/1000 < 2) {
+      setSubmissionTime(Date.now());  
+      setError("Only allow to submit one number in 2 seconds. Try again in 2 seconds");
+      return;}
     async function getGameData() {
       try {
         const res = await fetch('api/getHorseGameData', {
@@ -202,6 +212,7 @@ export default function Market() {
                 },
                 body: JSON.stringify({userEmail, partyEmail, agreedPrice})
             });
+            setSubmissionTime(Date.now());
 
             if (res.ok) {
               setAcceptError("");
@@ -216,6 +227,44 @@ export default function Market() {
     
 //handle order cancellation
 const handleCancelOrder = async() => {
+  //need to change to direct call
+  if( (Date.now()-submissionTime)/1000 < 2) {
+    setSubmissionTime(Date.now());  
+    setError("Only allow to submit one number in 2 seconds. Try again in 2 seconds");
+    return;}
+  async function getGameData() {
+    try {
+      const res = await fetch('api/getHorseGameData', {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json"
+        },
+      });
+      
+      if (res.ok) {
+        const resData = await res.json();
+        if (typeof resData !== 'undefined' && resData.length > 0 ) {
+          setGameData(resData);
+        }
+        
+      }    
+    } catch (err) {
+      console.error(err);
+    }
+  
+  }
+
+  
+  //Need to change to direct call to get data
+  getGameData();    
+  
+  var userData = typeof(gameData) !== "undefined"? gameData.filter(x => x.email == userEmail) : [];
+  if (typeof(userData) !== "undefined" && userData.length> 0) {
+    const status =  typeof(userData) !== "undefined"? (userData.length !==0 ?  userData[0].status :""): "";
+    if (status !== "offered") {
+      setAcceptError("The order cannot be cancelled");
+      return;
+    } 
     try {
         const res = await fetch('api/cancelOrder', {
             method: "POST",
@@ -224,6 +273,7 @@ const handleCancelOrder = async() => {
             },
             body: JSON.stringify({userEmail})
         });
+        setSubmissionTime(Date.now());
         if (res.ok) {
           setAcceptError("");
         }
@@ -234,14 +284,53 @@ const handleCancelOrder = async() => {
     } catch (error) {
         console.log("Error when submission:", error)
     }
+  }
 
 }
 
 //handle contract cancellation
 const handleCancelContract = async() => {
-    //need to change to direct call 
+    //need to change to direct call
+    if( (Date.now()-submissionTime)/1000 < 2) {
+      setSubmissionTime(Date.now());  
+      setError("Only allow to submit one number in 2 seconds. Try again in 2 seconds");
+      return;}
+    async function getGameData() {
+      try {
+        const res = await fetch('api/getHorseGameData', {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json"
+          },
+        });
+          
+        if (res.ok) {
+          const resData = await res.json();
+          if (typeof resData !== 'undefined' && resData.length > 0 ) {
+            setGameData(resData);
+          }
+          
+        }    
+      } catch (err) {
+        console.error(err);
+      }
+    
+    }
+
+    
+    //Need to change to direct call to get data
+    getGameData();    
+    
+    var userData = typeof(gameData) !== "undefined"? gameData.filter(x => x.email == userEmail) : [];
+    
+    
     if (typeof(userData) !== "undefined" && userData.length> 0) {
         const partyEmail = userData[0].tradingparty;
+        const status =  typeof(userData) !== "undefined"? (userData.length !==0 ?  userData[0].status :""): "";
+        if (status !== "contracted") {
+          setAcceptError("The contract is already cancelled");
+          return;
+        } 
         try {
             const res = await fetch('api/cancelContract', {
                 method: "POST",
@@ -250,7 +339,7 @@ const handleCancelContract = async() => {
                 },
                 body: JSON.stringify({userEmail, partyEmail})
             });
-
+            setSubmissionTime(Date.now()); 
             if (res.ok) {
               setAcceptError("");
             }
@@ -268,7 +357,7 @@ const handleCancelContract = async() => {
 
 }
 
-//Get the agrred price list
+//Get the agreed price list
 //Get unique contracted agreements
 const getUniqueContract = (_gameData) => {
   var simplifiedGameData = typeof(_gameData) !== "undefined"? _gameData.filter(x => x.status == "contracted") : [];
@@ -423,10 +512,42 @@ const minVal = typeof(game) !=="undefined" ? (game.length > 0? game[game.length 
   const handleSubmit = async (e) => {
     e.preventDefault();
     //Require all field filled
+    if( (Date.now()-submissionTime)/1000 < 2) {
+      setSubmissionTime(Date.now());  
+      setError("Only allow to submit one number in 2 seconds. Try again in 2 seconds");
+      return;}
     if (!price) {
         setError("All fields neccessary");
         return;
     }
+    //need to change to direct call
+    async function getGameData() {
+      try {
+        const res = await fetch('api/getHorseGameData', {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json"
+          },
+        });
+        setSubmissionTime(Date.now()); 
+        if (res.ok) {
+          const resData = await res.json();
+          if (typeof resData !== 'undefined' && resData.length > 0 ) {
+            setGameData(resData);
+          }
+          
+        }    
+      } catch (err) {
+        console.error(err);
+      }
+    
+    }
+
+    
+    //Need to change to direct call to get data
+    getGameData();    
+    
+    var userData = typeof(gameData) !== "undefined"? gameData.filter(x => x.email == userEmail) : [];
     //Check the existing order
     const status =  typeof(userData) !== "undefined"? (userData.length !==0 ?  userData[0].status :""): "";
     if (status !== "available") {
@@ -520,10 +641,10 @@ const minVal = typeof(game) !=="undefined" ? (game.length > 0? game[game.length 
         <div className="flex flex-row py-16">
         
         <div className="pr-4">
-            {activeMarket(buyOrders, "Buy")}   
+            {activeMarket(topBookBuyOrders, "Buy")}   
         </div>
         <div className="pl-4">
-            {activeMarket(sellOrders, "Sell")}   
+            {activeMarket(topBookSellOrders, "Sell")}   
         </div>  
                 
     </div>
@@ -567,7 +688,7 @@ const minVal = typeof(game) !=="undefined" ? (game.length > 0? game[game.length 
     </div>
 
 </div>
-<p className="py-12 text-xl"> Traded price histogram chart </p>
+<p className="py-6 text-xl"> Traded price histogram chart </p>
 <HistogramChart props = {agreedPriceList} max = {maxVal*multiplier + 1} min = {minVal}/>
 </div>): 
 <div className="text-xl"> There is no active game to play 

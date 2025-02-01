@@ -77,7 +77,7 @@ export default function ActiveRegister() {
    
     await getGameData();
     await getGame();
-  }, 5 * 100);
+  }, 2 * 100);
     
 
   return () => clearInterval(interval)
@@ -127,10 +127,28 @@ export default function ActiveRegister() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if( (Date.now()-submissionTime)/1000 < 2) {
-      setSubmissionTime(Date.now());  
-      setError("Only allow to submit one number in 2 seconds. Try again in 2 seconds");
-      return;}
+    setSubmissionTime(Date.now());  
+    setError("Only allow to submit one number in 2 seconds. Try again in 2 seconds");
+     return;}
     //Randomly create a value
+    const resUserExists = await fetch('api/activeUserExists', {
+      method: "POST",
+      headers: {
+          "Content-type": "application/json"
+      },
+      body: JSON.stringify({userEmail})
+
+  })
+
+  const { user } = await resUserExists.json();
+  console.log(userEmail)
+  console.log(user)
+  
+  if (user) {
+      setError("User already exists");
+      return;
+  }
+
     const userType = Math.random() < 0.5 ? "buyer": "seller";
     if (userType === "buyer") {        
       var assignedValue = Math.random() * (max*multiplier-min) + min;
@@ -176,7 +194,7 @@ export default function ActiveRegister() {
           },
           body: JSON.stringify({userEmail, userType, assignedValue})
       });
-    setSubmissionTime(Date.now());   
+    //setSubmissionTime(Date.now());   
      
       if (res.ok) {
           const form = e.target;

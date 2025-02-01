@@ -25,8 +25,8 @@ export default function Scatterchart({data01, data02}) {
         }}
       >
         <CartesianGrid />
-        <XAxis type="number" dataKey="x" name="price"  />
-        <YAxis type="number" dataKey="y" name="Volume"  />
+        <XAxis type="number" dataKey="y" name="Volume"  />
+        <YAxis type="number" dataKey="x" name="Price"  />
         
         <Tooltip cursor={{ strokeDasharray: '3 3' }} />
         <Legend />
